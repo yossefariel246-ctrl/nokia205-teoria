@@ -4,8 +4,8 @@ import java.util.Vector;
 import java.util.Random;
 
 /**
- * טוען שאלות מקבצי /questions_a.txt, /questions_b.txt, /questions_c.txt
- * פורמט שורה: flag|שאלה|ת1|ת2|ת3|ת4|correct|קטגוריה
+ * טוען שאלות מ-questions_a/b/c/core.txt
+ * פורמט: imgId|שאלה|ת1|ת2|ת3|ת4|correct|קטגוריה
  */
 public class QuestionBank {
 
@@ -13,12 +13,11 @@ public class QuestionBank {
 
     public QuestionBank() {
         Vector list = new Vector();
+        loadFile("/questions_core.txt", list);
         loadFile("/questions_a.txt", list);
         loadFile("/questions_b.txt", list);
         loadFile("/questions_c.txt", list);
-        if (list.size() == 0) {
-            loadFile("/questions.txt", list);
-        }
+        loadFile("/questions.txt", list);
         questions = new Question[list.size()];
         for (int i = 0; i < list.size(); i++) {
             questions[i] = (Question) list.elementAt(i);
@@ -43,15 +42,11 @@ public class QuestionBank {
                     lineBuf.append((char) c);
                 }
             }
-            if (lineBuf.length() > 0) {
-                addLine(lineBuf.toString(), list);
-            }
+            if (lineBuf.length() > 0) addLine(lineBuf.toString(), list);
             reader.close();
         } catch (Exception e) {
         } finally {
-            if (is != null) {
-                try { is.close(); } catch (Exception e) {}
-            }
+            if (is != null) try { is.close(); } catch (Exception e) {}
         }
     }
 
@@ -59,6 +54,7 @@ public class QuestionBank {
         Vector parts = split(line, '|');
         if (parts.size() < 7) return;
         try {
+            String imgId = (String) parts.elementAt(0);
             String qtext = (String) parts.elementAt(1);
             String[] ans = new String[4];
             ans[0] = (String) parts.elementAt(2);
@@ -68,10 +64,9 @@ public class QuestionBank {
             int correct = Integer.parseInt(((String) parts.elementAt(6)).trim());
             String cat = parts.size() > 7 ? (String) parts.elementAt(7) : "";
             if (qtext.length() > 0 && correct >= 0 && correct <= 3) {
-                list.addElement(new Question(qtext, ans, correct, cat));
+                list.addElement(new Question(qtext, ans, correct, cat, imgId));
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
 
     private Vector split(String s, char sep) {
@@ -82,9 +77,7 @@ public class QuestionBank {
             if (ch == sep) {
                 v.addElement(cur.toString());
                 cur.setLength(0);
-            } else {
-                cur.append(ch);
-            }
+            } else cur.append(ch);
         }
         v.addElement(cur.toString());
         return v;
