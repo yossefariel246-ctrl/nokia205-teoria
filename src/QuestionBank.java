@@ -4,7 +4,9 @@ import java.util.Vector;
 import java.util.Random;
 
 /**
- * טוען את מאגר השאלות מקובץ המשאב /questions.txt
+ * טוען שאלות מקובץ /questions.txt
+ * פורמט שורה: flag|שאלה|ת1|ת2|ת3|ת4|correct|קטגוריה
+ * flag: 0=בלי תמונה, 1=עם תמונה (כרגע מתעלמים מתמונה)
  */
 public class QuestionBank {
 
@@ -21,51 +23,22 @@ public class QuestionBank {
             }
             InputStreamReader reader = new InputStreamReader(is, "UTF-8");
             StringBuffer lineBuf = new StringBuffer();
-            String qText = null;
-            Vector answers = new Vector();
-            int correct = -1;
-            String cat = "";
             int c;
             while ((c = reader.read()) != -1) {
                 if (c == '\n' || c == '\r') {
-                    if (lineBuf.length() == 0) continue;
-                    String line = lineBuf.toString();
-                    lineBuf.setLength(0);
-                    if (line.startsWith("Q|")) {
-                        qText = line.substring(2);
-                        answers = new Vector();
-                        correct = -1;
-                        cat = "";
-                    } else if (line.startsWith("A|")) {
-                        answers.addElement(line.substring(2));
-                    } else if (line.startsWith("C|")) {
-                        try {
-                            correct = Integer.parseInt(line.substring(2).trim());
-                        } catch (Exception e) {
-                            correct = -1;
-                        }
-                    } else if (line.startsWith("CAT|")) {
-                        cat = line.substring(4);
-                    } else if (line.equals("---")) {
-                        if (qText != null && answers.size() == 4 && correct >= 0 && correct <= 3) {
-                            String[] ans = new String[4];
-                            for (int i = 0; i < 4; i++) {
-                                ans[i] = (String) answers.elementAt(i);
-                            }
-                            list.addElement(new Question(qText, ans, correct, cat));
-                        }
-                        qText = null;
-                        answers = new Vector();
-                        correct = -1;
-                        cat = "";
+                    if (lineBuf.length() > 0) {
+                        addLine(lineBuf.toString(), list);
+                        lineBuf.setLength(0);
                     }
                 } else {
                     lineBuf.append((char) c);
                 }
             }
+            if (lineBuf.length() > 0) {
+                addLine(lineBuf.toString(), list);
+            }
             reader.close();
         } catch (Exception e) {
-            // empty on error
         } finally {
             if (is != null) {
                 try { is.close(); } catch (Exception e) {}
@@ -77,6 +50,41 @@ public class QuestionBank {
         }
     }
 
+    private void addLine(String line, Vector list) {
+        Vector parts = split(line, '|');
+        if (parts.size() < 7) return;
+        try {
+            String qtext = (String) parts.elementAt(1);
+            String[] ans = new String[4];
+            ans[0] = (String) parts.elementAt(2);
+            ans[1] = (String) parts.elementAt(3);
+            ans[2] = (String) parts.elementAt(4);
+            ans[3] = (String) parts.elementAt(5);
+            int correct = Integer.parseInt(((String) parts.elementAt(6)).trim());
+            String cat = parts.size() > 7 ? (String) parts.elementAt(7) : "";
+            if (qtext.length() > 0 && correct >= 0 && correct <= 3) {
+                list.addElement(new Question(qtext, ans, correct, cat));
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    private Vector split(String s, char sep) {
+        Vector v = new Vector();
+        StringBuffer cur = new StringBuffer();
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (ch == sep) {
+                v.addElement(cur.toString());
+                cur.setLength(0);
+            } else {
+                cur.append(ch);
+            }
+        }
+        v.addElement(cur.toString());
+        return v;
+    }
+
     public int size() {
         return questions != null ? questions.length : 0;
     }
@@ -85,7 +93,6 @@ public class QuestionBank {
         return questions[index];
     }
 
-    /** מחזיר count אינדקסים אקראיים שונים */
     public int[] randomIndices(int count) {
         int n = size();
         if (n == 0) return new int[0];
