@@ -4,9 +4,8 @@ import java.util.Vector;
 import java.util.Random;
 
 /**
- * טוען שאלות מקובץ /questions.txt
+ * טוען שאלות מקבצי /questions_a.txt, /questions_b.txt, /questions_c.txt
  * פורמט שורה: flag|שאלה|ת1|ת2|ת3|ת4|correct|קטגוריה
- * flag: 0=בלי תמונה, 1=עם תמונה (כרגע מתעלמים מתמונה)
  */
 public class QuestionBank {
 
@@ -14,13 +13,23 @@ public class QuestionBank {
 
     public QuestionBank() {
         Vector list = new Vector();
+        loadFile("/questions_a.txt", list);
+        loadFile("/questions_b.txt", list);
+        loadFile("/questions_c.txt", list);
+        if (list.size() == 0) {
+            loadFile("/questions.txt", list);
+        }
+        questions = new Question[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            questions[i] = (Question) list.elementAt(i);
+        }
+    }
+
+    private void loadFile(String path, Vector list) {
         InputStream is = null;
         try {
-            is = getClass().getResourceAsStream("/questions.txt");
-            if (is == null) {
-                questions = new Question[0];
-                return;
-            }
+            is = getClass().getResourceAsStream(path);
+            if (is == null) return;
             InputStreamReader reader = new InputStreamReader(is, "UTF-8");
             StringBuffer lineBuf = new StringBuffer();
             int c;
@@ -43,10 +52,6 @@ public class QuestionBank {
             if (is != null) {
                 try { is.close(); } catch (Exception e) {}
             }
-        }
-        questions = new Question[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            questions[i] = (Question) list.elementAt(i);
         }
     }
 
