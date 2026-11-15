@@ -1,0 +1,10 @@
+*.class
+*.jar
+*.jad
+bin/
+dist/
+.nbproject/
+build/
+*.log
+.DS_Store
+Thumbs.db
