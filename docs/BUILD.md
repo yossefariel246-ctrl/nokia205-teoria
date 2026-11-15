@@ -1,38 +1,32 @@
 # בניית JAR לנוקיה 205
 
-## דרישות
-- Java ME SDK / Wireless Toolkit / NetBeans + Java ME
-- יעד: **CLDC 1.1 + MIDP 2.0**
+## יעד
+CLDC 1.1 + MIDP 2.0
 
-## שלבים (NetBeans לדוגמה)
-1. New Project → Java ME → Mobile Application  
-2. העתק את `src/*.java`  
-3. העתק את `res/questions.txt` כך שייארז **בשורש ה-JAR** (נתיב בתוך ה-JAR: `/questions.txt`)  
-4. Build → Create Package  
+## משאבים שחייבים בתוך ה-JAR
+| נתיב ב-JAR | מקור |
+|------------|------|
+| `/questions_a.txt` וכו' | `res/questions_*.txt` |
+| `/img/XXXX.jpg` | חלץ מ-`res/img_phone.zip` או מתיקיית `res/img/` |
 
-## חשוב מאוד
-`QuestionBank` טוען את השאלות כך:
-```java
-getClass().getResourceAsStream("/questions.txt")
-```
-אם הקובץ לא בשורש ה-JAR – האפליקציה תעלה בלי שאלות.
+## שלבים
+1. חלץ את `img_phone.zip` לתיקיית `res/img/` (אם עדיין לא)
+2. צור פרויקט Java ME והעתק את `src/*.java`
+3. הוסף למשאבי ה-JAR:
+   - את קבצי `questions_*.txt` בשורש
+   - את כל קבצי `res/img/*.jpg` תחת תיקיית `img/` ב-JAR
+4. Build → Create Package
 
-## JAD לדוגמה
+## תמונות
+כ־314 תמונות מוקטנות (~160px, ~600KB סה״כ) – מתאימות למסך 320×240.
+נטענות אחת-אחת רק כשמוצגת השאלה.
+
+## JAD
 ```
 MIDlet-Name: Teoria Nokia 205
-MIDlet-Version: 1.0.0
+MIDlet-Version: 1.1.0
 MIDlet-Vendor: Open Source
 MIDlet-1: Teoria, , TheoryMidlet
 MicroEdition-Profile: MIDP-2.0
 MicroEdition-Configuration: CLDC-1.1
-MIDlet-Jar-URL: teoria.jar
-MIDlet-Jar-Size: (גודל אחרי בנייה)
 ```
-
-## מגבלות נוקיה 205
-- מסך 320×240  
-- זיכרון מוגבל – אם יש OutOfMemory, אפשר לצמצם את `questions.txt`  
-- אין מגע – רק חיצים ומקשי תוכנה (OK / חזרה)
-
-## התקנה
-Bluetooth או כרטיס microSD → תפריט יישומים / Java → התקן.
