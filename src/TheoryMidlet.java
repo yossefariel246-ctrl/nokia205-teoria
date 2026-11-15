@@ -164,6 +164,19 @@ public class TheoryMidlet extends MIDlet implements CommandListener {
             questionForm.append(timerItem);
         }
 
+        if (q.imageId != null && q.imageId.length() > 0) {
+            try {
+                java.io.InputStream iis = getClass().getResourceAsStream("/img/" + q.imageId + ".jpg");
+                if (iis != null) {
+                    Image img = Image.createImage(iis);
+                    iis.close();
+                    ImageItem ii = new ImageItem(null, img, ImageItem.LAYOUT_CENTER, null);
+                    questionForm.append(ii);
+                }
+            } catch (Exception e) {
+            }
+        }
+
         questionText = new StringItem(null, q.text);
         questionForm.append(questionText);
 
